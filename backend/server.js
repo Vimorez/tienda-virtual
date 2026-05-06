@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const { Prenda, Venta, User } = require('./models');
 
 dotenv.config();
@@ -14,6 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb' }));
+
+// SERVIR ARCHIVOS ESTÁTICOS DEL FRONTEND
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Conectar a MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/tienda-virtual', {
@@ -266,6 +270,11 @@ app.get('/api/reportes/finanzas', verificarToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// SERVIR EL INDEX.HTML PARA TODAS LAS RUTAS (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Puerto
